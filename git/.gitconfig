@@ -1,0 +1,28 @@
+[user]
+    name = Sreyas Sabbani
+    email = sreyassabbani@gmail.com
+
+[core]
+    editor = hx
+    autocrlf = input
+
+[init]
+    defaultBranch = main
+
+[pull]
+    rebase = true
+
+[merge]
+    conflictstyle = zdiff3
+
+[color]
+    ui = auto
+
+[alias]
+	sl = log --oneline
+    st = status -sb
+    co = checkout
+    br = branch
+    ci = commit
+    lg = log --oneline --graph --decorate --all
+
