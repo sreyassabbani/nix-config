@@ -28,7 +28,8 @@
   ########################################
   # Flake Outputs
   ########################################
-  outputs = { self, ... }@inputs:
+  outputs =
+    { self, ... }@inputs:
     let
       username = "sreysus";
       system = "aarch64-darwin";
@@ -37,61 +38,61 @@
       ########################################
       # System Configuration (nix-darwin)
       ########################################
-      darwinConfigurations."${username}-${system}" =
-        inputs.nix-darwin.lib.darwinSystem {
-          inherit system;
+      darwinConfigurations."${username}-${system}" = inputs.nix-darwin.lib.darwinSystem {
+        inherit system;
 
-          modules = [
-            ########################################
-            # Determinate Nix
-            ########################################
-            inputs.determinate.darwinModules.default
+        modules = [
+          ########################################
+          # Determinate Nix
+          ########################################
+          inputs.determinate.darwinModules.default
 
-            ########################################
-            # nix-homebrew
-            ########################################
-            inputs.nix-homebrew.darwinModules.nix-homebrew
-            {
-              nix-homebrew = {
-                enable = true;
-                enableRosetta = true;
-                user = username;
-                autoMigrate = true;
-              };
-            }
+          ########################################
+          # nix-homebrew
+          ########################################
+          inputs.nix-homebrew.darwinModules.nix-homebrew
+          {
+            nix-homebrew = {
+              enable = true;
+              enableRosetta = true;
+              user = username;
+              autoMigrate = true;
+            };
+          }
 
-            ########################################
-            # Base nix-darwin Config
-            ########################################
-            self.darwinModules.base
+          ########################################
+          # Base nix-darwin Config
+          ########################################
+          self.darwinModules.base
 
-            ########################################
-            # Determinate Nix Config
-            ########################################
-            self.darwinModules.nixConfig
+          ########################################
+          # Determinate Nix Config
+          ########################################
+          self.darwinModules.nixConfig
 
-            ########################################
-            # Inline nix-darwin module (empty)
-            ########################################
-            ({ pkgs, ... }: { })
+          ########################################
+          # Inline nix-darwin module (empty)
+          ########################################
+          ({ pkgs, ... }: { })
 
-            ########################################
-            # Home Manager
-            ########################################
-            inputs.home-manager.darwinModules.home-manager
-            {
-              home-manager = {
-                useGlobalPkgs = true;
-                useUserPackages = true;
+          ########################################
+          # Home Manager
+          ########################################
+          inputs.home-manager.darwinModules.home-manager
+          {
+            home-manager = {
+              useGlobalPkgs = true;
+              useUserPackages = true;
 
-                users.${username} = { pkgs, ... }: {
+              users.${username} =
+                { pkgs, ... }:
+                {
                   home.username = username;
                   home.homeDirectory = "/Users/${username}";
                   home.enableNixpkgsReleaseCheck = false;
                   home.stateVersion = "25.05";
 
                   programs.home-manager.enable = true;
-
 
                   ########################################
                   # Git Config
@@ -317,10 +318,16 @@
 
                         {
                           name = "python";
-                          "language-servers" = [ "basedpyright" "ruff" ];
+                          "language-servers" = [
+                            "basedpyright"
+                            "ruff"
+                          ];
                           formatter = {
                             command = "ruff";
-                            args = [ "format" "-" ];
+                            args = [
+                              "format"
+                              "-"
+                            ];
                           };
                           "auto-format" = true;
                         }
@@ -362,7 +369,12 @@
                         {
                           name = "cpp";
                           scope = "source.cpp";
-                          "file-types" = [ "cpp" "h" "c" "hpp" ];
+                          "file-types" = [
+                            "cpp"
+                            "h"
+                            "c"
+                            "hpp"
+                          ];
                           "language-servers" = [ "clangd" ];
                           formatter = {
                             command = "clang-format";
@@ -372,6 +384,19 @@
                           indent = {
                             "tab-width" = 4;
                             unit = "    ";
+                          };
+                        }
+
+                        {
+                          name = "nix";
+                          "file-types" = [ "nix" ];
+                          roots = [
+                            "flake.nix"
+                            "shell.nix"
+                            "default.nix"
+                          ];
+                          formatter = {
+                            command = "nixfmt";
                           };
                         }
                       ];
@@ -413,154 +438,158 @@
                     };
                   };
                 };
-              };
-            }
-          ];
-        };
+            };
+          }
+        ];
+      };
 
       ########################################
       # nix-darwin Modules
       ########################################
       darwinModules = {
-        base = { config, pkgs, ... }: {
-          system.stateVersion = 6;
-          system.configurationRevision = self.rev or self.dirtyRev or null;
-          system.primaryUser = username;
-          system.activationScripts.defaultBrowser.text = ''
-            # See available names:
-            #   ${pkgs.defaultbrowser}/bin/defaultbrowser -l
-            ${pkgs.defaultbrowser}/bin/defaultbrowser "Zen Browser"
-          '';
-
-
-          users.users.${username} = {
-            name = username;
-            home = "/Users/${username}";
-          };
-
-          ########################################
-          # System Packages
-          ########################################
-          environment.systemPackages = with pkgs; [
-            helix
-            mkalias
-            gnupg
-            pinentry_mac
-            fastfetch
-            git
-            ripgrep
-            defaultbrowser
-            fd
-            rustc
-            cargo
-          ];
-
-          ########################################
-          # Homebrew
-          ########################################
-          homebrew = {
-            enable = true;
-
-            brews = [
-              "mas"
-              "gh"
-              "tldr"
-              "tree"
-            ];
-
-            casks = [
-              "hammerspoon"
-              "ghostty"
-              "iina"
-              "zotero"
-              "spotify"
-              "notion-calendar"
-              "anki"
-              "antigravity"
-              "visual-studio-code"
-              "chatgpt-atlas"
-              "the-unarchiver"
-              "zen-browser"
-            ];
-
-            masApps = { };
-
-            onActivation.cleanup = "zap";
-            onActivation.autoUpdate = true;
-            onActivation.upgrade = true;
-          };
-
-          ########################################
-          # Symlink Applications
-          ########################################
-          system.activationScripts.applications.text =
-            let
-              env = pkgs.buildEnv {
-                name = "system-applications";
-                paths = config.environment.systemPackages;
-                pathsToLink = [ "/Applications" ];
-              };
-            in
-            pkgs.lib.mkForce ''
-              echo "setting up /Applications..." >&2
-              rm -rf /Applications/Nix\ Apps
-              mkdir -p /Applications/Nix\ Apps
-
-              find ${env}/Applications -maxdepth 1 -type l -exec readlink '{}' + |
-              while read -r src; do
-                app_name=$(basename "$src")
-                echo "copying $src" >&2
-                ${pkgs.mkalias}/bin/mkalias "$src" "/Applications/Nix Apps/$app_name"
-              done
+        base =
+          { config, pkgs, ... }:
+          {
+            system.stateVersion = 6;
+            system.configurationRevision = self.rev or self.dirtyRev or null;
+            system.primaryUser = username;
+            system.activationScripts.defaultBrowser.text = ''
+              # See available names:
+              #   ${pkgs.defaultbrowser}/bin/defaultbrowser -l
+              ${pkgs.defaultbrowser}/bin/defaultbrowser "Zen Browser"
             '';
 
-          ########################################
-          # macOS Defaults
-          ########################################
-          system.keyboard.enableKeyMapping = true;
-          system.keyboard.remapCapsLockToEscape = true;
+            users.users.${username} = {
+              name = username;
+              home = "/Users/${username}";
+            };
 
-          system.defaults = {
-            dock = {
-              autohide = true;
-              show-recents = false;
-              tilesize = 25;
-              largesize = 60;
-              orientation = "bottom";
+            ########################################
+            # System Packages
+            ########################################
+            environment.systemPackages = with pkgs; [
+              helix
+              mkalias
+              gnupg
+              pinentry_mac
+              fastfetch
+              git
+              ripgrep
+              defaultbrowser
+              fd
+              rustc
+              cargo
+              nixfmt-rfc-style
+            ];
 
-              persistent-apps = [
-                { app = "/Applications/Ghostty.app"; }
-                { app = "/Applications/Zen.app"; }
+            ########################################
+            # Homebrew
+            ########################################
+            homebrew = {
+              enable = true;
+
+              brews = [
+                "mas"
+                "gh"
+                "tldr"
+                "tree"
               ];
 
-              persistent-others = [ ];
-            };
-          };
+              casks = [
+                "hammerspoon"
+                "ghostty"
+                "iina"
+                "zotero"
+                "spotify"
+                "notion-calendar"
+                "anki"
+                "antigravity"
+                "visual-studio-code"
+                "chatgpt-atlas"
+                "the-unarchiver"
+                "zen-browser"
+              ];
 
-          ########################################
-          # Fonts
-          ########################################
-          fonts.packages = with pkgs; [
-            nerd-fonts.jetbrains-mono
-            nerd-fonts.symbols-only
-          ];
-        };
+              masApps = { };
+
+              onActivation.cleanup = "zap";
+              onActivation.autoUpdate = true;
+              onActivation.upgrade = true;
+            };
+
+            ########################################
+            # Symlink Applications
+            ########################################
+            system.activationScripts.applications.text =
+              let
+                env = pkgs.buildEnv {
+                  name = "system-applications";
+                  paths = config.environment.systemPackages;
+                  pathsToLink = [ "/Applications" ];
+                };
+              in
+              pkgs.lib.mkForce ''
+                echo "setting up /Applications..." >&2
+                rm -rf /Applications/Nix\ Apps
+                mkdir -p /Applications/Nix\ Apps
+
+                find ${env}/Applications -maxdepth 1 -type l -exec readlink '{}' + |
+                while read -r src; do
+                  app_name=$(basename "$src")
+                  echo "copying $src" >&2
+                  ${pkgs.mkalias}/bin/mkalias "$src" "/Applications/Nix Apps/$app_name"
+                done
+              '';
+
+            ########################################
+            # macOS Defaults
+            ########################################
+            system.keyboard.enableKeyMapping = true;
+            system.keyboard.remapCapsLockToEscape = true;
+
+            system.defaults = {
+              dock = {
+                autohide = true;
+                show-recents = false;
+                tilesize = 25;
+                largesize = 60;
+                orientation = "bottom";
+
+                persistent-apps = [
+                  { app = "/Applications/Ghostty.app"; }
+                  { app = "/Applications/Zen.app"; }
+                ];
+
+                persistent-others = [ ];
+              };
+            };
+
+            ########################################
+            # Fonts
+            ########################################
+            fonts.packages = with pkgs; [
+              nerd-fonts.jetbrains-mono
+              nerd-fonts.symbols-only
+            ];
+          };
 
         ########################################
         # Determinate Nix Config Module
         ########################################
-        nixConfig = { ... }: {
-          nix.enable = false;
+        nixConfig =
+          { ... }:
+          {
+            nix.enable = false;
 
-          determinate-nix.customSettings = {
-            eval-cores = 0;
+            determinate-nix.customSettings = {
+              eval-cores = 0;
 
-            extra-experimental-features = [
-              "build-time-fetch-tree"
-              "parallel-eval"
-            ];
+              extra-experimental-features = [
+                "build-time-fetch-tree"
+                "parallel-eval"
+              ];
+            };
           };
-        };
       };
 
       ########################################
@@ -593,7 +622,6 @@
       ########################################
       # Formatter
       ########################################
-      formatter.${system} =
-        inputs.nixpkgs.legacyPackages.${system}.nixfmt-rfc-style;
+      formatter.${system} = inputs.nixpkgs.legacyPackages.${system}.nixfmt-rfc-style;
     };
 }
