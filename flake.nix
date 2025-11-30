@@ -5,19 +5,27 @@
   inputs = {
     # Stable Nixpkgs (use 0.1 for unstable)
     nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0";
+
     # Stable nix-darwin (use 0.1 for unstable)
     nix-darwin = {
       url = "https://flakehub.com/f/nix-darwin/nix-darwin/0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
     # Determinate 3.* module
     determinate = {
       url = "https://flakehub.com/f/DeterminateSystems/determinate/3";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
+    
     # nix-homebrew to let nix-darwin manage Homebrew installation
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
+
+    # Home Manager for user-level config (dotfiles, packages, etc.)
+    home-manager = {
+      url = "https://flakehub.com/f/nix-community/home-manager/0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   # Flake outputs
@@ -64,6 +72,113 @@
                 # Inline nix-darwin configuration (currently empty)
               }
             )
+
+            # Home Manager: user-level config (dotfiles, git, ssh, zsh, etc.)
+            inputs.home-manager.darwinModules.home-manager
+            {
+              home-manager = {
+                # Use same pkgs as nix-darwin and allow user packages
+                useGlobalPkgs = true;
+                useUserPackages = true;
+
+                users.${username} = { pkgs, ... }: {
+                  home.username = username;
+                  home.homeDirectory = "/Users/${username}";
+                  home.enableNixpkgsReleaseCheck = false;
+
+                  # Pick once and never change; choose the HM release you’re on.
+                  home.stateVersion = "25.05";
+
+                  # Optional but nice: installs the `home-manager` CLI in your profile
+                  programs.home-manager.enable = true;
+
+                  ########################################
+                  # ~/.gitconfig (programs.git)
+                  ########################################
+
+                  programs.git = {
+                    enable = true;
+
+                    # This block is still valid; no warning about it
+                    signing = {
+                      key = "688241BB0F9A860B";
+                      signByDefault = true;
+                    };
+
+                    # New style: everything under `settings`
+                    settings = {
+                      user = {
+                        name = "Sreyas Sabbani";
+                        email = "sreyassabbani@gmail.com";
+                      };
+
+                      gpg.program = "gpg";
+
+                      core = {
+                        editor = "hx";
+                        autocrlf = "input";
+                      };
+
+                      init.defaultBranch = "main";
+
+                      pull.rebase = true;
+
+                      merge.conflictstyle = "zdiff3";
+
+                      color.ui = "auto";
+
+                      commit.gpgsign = true;
+                      tag.gpgsign = true;
+
+                      alias = {
+                        sl = "log --oneline";
+                        st = "status -sb";
+                        co = "checkout";
+                        br = "branch";
+                        ci = "commit";
+                        lg = "log --oneline --graph --decorate --all";
+                      };
+                    };
+                  };
+
+                  ########################################
+                  # ~/.ssh/config (programs.ssh)
+                  ########################################
+
+                  programs.ssh = {
+                    enable = true;
+                    enableDefaultConfig = false;
+
+                    matchBlocks."github.com" = {
+                      hostname = "github.com";
+                      user = "git";
+                      identityFile = "~/.ssh/id_ed25519";
+                      extraOptions = {
+                        AddKeysToAgent = "yes";
+                        UseKeychain = "yes";
+                      };
+                    };
+                  };
+
+                  ########################################
+                  # ~/.zshrc (programs.zsh + env)
+                  ########################################
+
+                  programs.zsh = {
+                    enable = true;
+
+                    shellAliases = {
+                      dr =
+                        "sudo darwin-rebuild switch --flake ~/nix#${username}-${system}";
+                    };
+                  };
+
+                  home.sessionVariables = {
+                    EDITOR = "hx";
+                  };
+                };
+              };
+            }
           ];
         };
 
@@ -101,6 +216,8 @@
               mkalias
               gnupg
               pinentry_mac
+              defaultbrowser
+              fastfetch
               # ghostty-bin
               git
               ripgrep
@@ -119,7 +236,7 @@
               enable = true;
 
               brews = [
-                "stow"
+                # "stow" - use `home-manager` instead
                 "mas"
                 "gh"
                 "tldr"
@@ -131,6 +248,12 @@
                 "firefox"
                 "ghostty"
                 "iina"
+                "zotero"
+                "spotify"
+                "anki"
+                "antigravity"
+                "visual-studio-code"
+                "chatgpt-atlas"
                 "the-unarchiver"
                 "zen-browser"
               ];
@@ -175,8 +298,13 @@
             system.keyboard.remapCapsLockToEscape = true;
 
             system.defaults = {
-              dock.autohide = true;
-              dock.show-recents = false;
+              dock = {
+                autohide = true;
+                show-recents = false;
+                tilesize = 25;
+                largesize = 60;
+                orientation = "bottom";
+              };
 
               # Pinned apps in the Dock
               dock.persistent-apps = [
