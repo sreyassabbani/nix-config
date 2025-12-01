@@ -509,8 +509,11 @@
 
               casks = [
                 "hammerspoon"
+                "skim"
+                "slack"
                 "ghostty"
                 "iina"
+                "google-drive"
                 "zotero"
                 "spotify"
                 "notion-calendar"
@@ -569,7 +572,10 @@
 
                 persistent-apps = [
                   { app = "/Applications/Ghostty.app"; }
+                  { app = "/Applications/ChatGPT Atlas.app"; }
                   { app = "/Applications/Zen.app"; }
+                  { app = "/Applications/Notion Calendar.app"; }
+                  { app = "/Applications/Zotero.app"; }
                 ];
 
                 persistent-others = [ ];
