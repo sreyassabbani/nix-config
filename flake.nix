@@ -23,6 +23,8 @@
       url = "https://flakehub.com/f/nix-community/home-manager/0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nix-vscode-extensions.url = "github:nix-community/nix-vscode-extensions";
   };
 
   ########################################
@@ -33,6 +35,7 @@
     let
       username = "sreysus";
       system = "aarch64-darwin";
+      vscodeExtensionsOverlay = inputs.nix-vscode-extensions.overlays.default;
     in
     {
       ########################################
@@ -73,7 +76,9 @@
           ########################################
           # Inline nix-darwin module (empty)
           ########################################
-          ({ pkgs, ... }: { })
+          ({ pkgs, ... }: {
+            nixpkgs.overlays = [ vscodeExtensionsOverlay ];
+          })
 
           ########################################
           # Home Manager
@@ -107,6 +112,28 @@
                     bash.enable = true; # see note on other shells below
 
                     home-manager.enable = true;
+
+                    ########################################
+                    # VSCode Config
+                    ########################################
+                    vscode = {
+                      enable = true;
+                      profiles.default = {
+                        userSettings = {
+                          "editor.formatOnSave" = true;
+                          "workbench.colorTheme" = "Gruvbox Dark Soft";
+                          "workbench.iconTheme" = "icons";
+                          "git.autofetch" = true;
+                        };
+
+                        extensions = with pkgs.vscode-marketplace; [
+                          openai.chatgpt
+                          jnoortheen.nix-ide
+                          jdinhlife.gruvbox
+                          tal7aouy.icons
+                        ];
+                      };
+                    };
 
                     ########################################
                     # Git Config
@@ -488,10 +515,7 @@
               ripgrep
               defaultbrowser
               fd
-              rustc
-              cargo
               nixfmt-rfc-style
-              uv
             ];
 
             ########################################
@@ -509,6 +533,7 @@
 
               casks = [
                 "hammerspoon"
+                "codex"
                 "skim"
                 "slack"
                 "ghostty"
@@ -589,6 +614,7 @@
               nerd-fonts.jetbrains-mono
               nerd-fonts.symbols-only
             ];
+            nixpkgs.config.allowUnfree = true;
           };
 
         ########################################
