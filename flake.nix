@@ -17,6 +17,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # spicetify-nix.url = "github:Gerg-L/spicetify-nix";
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
 
     home-manager = {
@@ -92,6 +93,10 @@
               users.${username} =
                 { pkgs, ... }:
                 {
+                  # imports = [
+                  #   inputs.spicetify-nix.homeManagerModules.spicetify
+                  # ];
+
                   home = {
                     username = username;
                     homeDirectory = "/Users/${username}";
@@ -109,6 +114,31 @@
                       nix-direnv.enable = true;
                     };
 
+                    # spicetify =
+                    # let
+                    #   spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+                    # in
+                    # {
+                    #   enable = true;
+
+                    #   enabledExtensions = with spicePkgs.extensions; [
+                    #     adblock
+                    #     hidePodcasts
+                    #     shuffle # shuffle+ (special characters are sanitized out of extension names)
+                    #   ];
+                    #   enabledCustomApps = with spicePkgs.apps; [
+                    #     newReleases
+                    #     ncsVisualizer
+                    #   ];
+                    #   enabledSnippets = with spicePkgs.snippets; [
+                    #     rotatingCoverart
+                    #     pointer
+                    #   ];
+
+                    #   theme = spicePkgs.themes.catppuccin;
+                    #   colorScheme = "mocha";
+                    # };
+
                     bash.enable = true; # see note on other shells below
 
                     home-manager.enable = true;
@@ -124,6 +154,9 @@
                           "workbench.colorTheme" = "Gruvbox Dark Soft";
                           "workbench.iconTheme" = "icons";
                           "git.autofetch" = true;
+                          "editor.fontFamily" = "JetBrains Mono";
+                          "editor.fontLigatures" = true;
+
                         };
 
                         extensions = with pkgs.vscode-marketplace; [
@@ -131,6 +164,12 @@
                           jnoortheen.nix-ide
                           jdinhlife.gruvbox
                           tal7aouy.icons
+                          astro-build.astro-vscode
+                          # not sure how to enable vscode extensions per project
+                          esbenp.prettier-vscode
+                          platformio.platformio-ide
+                          rust-lang.rust-analyzer
+                          ms-python.python
                         ];
                       };
                     };
@@ -512,7 +551,9 @@
               pinentry_mac
               fastfetch
               git
+              # spicetify-cli
               ripgrep
+              fritzing
               defaultbrowser
               fd
               nixfmt-rfc-style
@@ -534,6 +575,9 @@
               casks = [
                 "hammerspoon"
                 "codex"
+                "microsoft-powerpoint"
+                "microsoft-word"
+                "zoom"
                 "skim"
                 "slack"
                 "ghostty"
@@ -596,6 +640,7 @@
                 orientation = "bottom";
 
                 persistent-apps = [
+                  { app = "/Applications/Anki.app"; }
                   { app = "/Applications/Ghostty.app"; }
                   { app = "/Applications/ChatGPT Atlas.app"; }
                   { app = "/Applications/Zen.app"; }
