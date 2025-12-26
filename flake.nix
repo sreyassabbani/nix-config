@@ -571,6 +571,7 @@
 
               brews = [
                 "mas"
+                "ffmpeg"
                 "gh"
                 "tldr"
                 "tree"
