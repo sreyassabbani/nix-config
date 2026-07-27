@@ -64,7 +64,10 @@ in
         bufferline = "multiple";
         cursorline = true;
         mouse = false;
-        rulers = [ 120 ];
+        rulers = [
+          80
+          120
+        ];
         "true-color" = true;
         "end-of-line-diagnostics" = "hint";
 
