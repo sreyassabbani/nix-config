@@ -7,6 +7,7 @@
     ./gpg.nix
     ./git.nix
     ./helix.nix
+    ./tt.nix
     ./typst.nix
     ./nushell.nix
     ./vscode.nix
