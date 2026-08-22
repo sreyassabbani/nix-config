@@ -3,6 +3,7 @@ $env.config = (($env.config? | default {}) | merge {
 })
 
 let base_path = [
+  "/Users/sreysus/.bun/bin"
   "/Users/sreysus/.nix-profile/bin"
   "/nix/var/nix/profiles/default/bin"
   "/opt/homebrew/bin"
