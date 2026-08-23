@@ -7,6 +7,7 @@ source "~/Library/Application Support/nushell/lib/ds.nu"
 
 $env.EDITOR = "hx"
 $env.VISUAL = "hx"
+$env.OPENCODE_ENABLE_EXA = "1"
 
 let openclaw_gateway_token_file = ([$env.HOME ".secrets" "openclaw-gateway-token"] | path join)
 if ($openclaw_gateway_token_file | path exists) {
