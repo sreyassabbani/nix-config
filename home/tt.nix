@@ -8,6 +8,4 @@
     hicol3: #8caaee
     errcol: #e78284
   '';
-
-  programs.zsh.shellAliases.tt = "tt -theme catppuccin-frappe";
 }
