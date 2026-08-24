@@ -15,7 +15,7 @@
         { app = "/Applications/Anki.app"; }
         { app = "/Applications/Ghostty.app"; }
         { app = "/Applications/ChatGPT.app"; }
-        { app = "/Applications/Zen.app"; }
+        { app = "/Applications/Google Chrome.app"; }
         { app = "/Applications/Obsidian.app"; }
         { app = "/Applications/Notion Calendar.app"; }
         { app = "/Applications/Zotero.app"; }

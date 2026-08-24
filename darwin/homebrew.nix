@@ -17,9 +17,12 @@
       "modem-dev/tap"
       "sreyassabbani/tap"
       "steipete/tap"
+      "anomalyco/tap"
     ];
 
     brews = [
+      "anomalyco/tap/opencode"
+      "ghostscript"
       "mas"
       "bun"
       "bat"
@@ -39,19 +42,21 @@
     ];
 
     casks = [
-      "gcloud-cli"
-      "blender"
-      "firefox"
+      "onedrive"
+      "opencode-desktop"
+      # "gcloud-cli"
+      # "blender"
+      # "firefox"
       "helium-browser"
       "hammerspoon"
       "notion"
       "microsoft-word"
-      "inkscape"
+      # "inkscape"
       "obsidian"
       "discord"
       "cursor"
       "microsoft-powerpoint"
-      "zoom"
+      # "zoom"
       "skim"
       "slack"
       "ghostty"
@@ -69,7 +74,7 @@
         greedy = true;
       }
       "the-unarchiver"
-      "zen"
+      # "zen"
     ];
 
     masApps = { };
